@@ -1,6 +1,8 @@
 package com.mka.lesson4;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class RaceThreadApp {
 
@@ -50,7 +52,7 @@ public class RaceThreadApp {
 //    }
 //}
 
-class CounterApp {
+/*class CounterApp {
 
     private AtomicInteger count;
 
@@ -64,6 +66,22 @@ class CounterApp {
 
     public int get() {
         return count.get();
+    }
+}*/
+
+class CounterApp {
+
+    private int count;
+    private Lock lock = new ReentrantLock();
+
+    public void increase() {
+        lock.lock();
+        count++;
+        lock.unlock();
+    }
+
+    public int get() {
+        return count;
     }
 }
 
