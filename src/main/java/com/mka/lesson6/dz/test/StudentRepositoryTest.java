@@ -44,6 +44,7 @@ public class StudentRepositoryTest {
 
     @After
     public void destroy() {
+        studentApp.closeConnection();
         studentApp = null;
     }
 }

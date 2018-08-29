@@ -16,9 +16,29 @@ public class StudentRepository {
     private final String QUERY_UPDATE = "UPDATE " + TABLE_NAME + " SET " + QUERY_SURNAME + " = ?, " + QUERY_SCORE + " = ? WHERE " + QUERY_ID + " = ?";
     private final String QUERY_SELECT_BY_SURNAME = "SELECT * FROM " + TABLE_NAME + " WHERE " + QUERY_SURNAME + " = ? LIMIT 1";
 
+    private static final String DB_NAME = "jdbc:sqlite:dbproduct";
     private Connection conn;
     private Statement st;
     private PreparedStatement pSt;
+
+    {
+        try {
+            conn = DriverManager.getConnection(DB_NAME);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Connection getConnection() {
+        try {
+            if (conn.isClosed()) {
+                conn = DriverManager.getConnection(DB_NAME);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return conn;
+    }
 
     public StudentRepository() {
         createTable();
@@ -26,7 +46,6 @@ public class StudentRepository {
 
     public void createTable() {
         try {
-            conn = MyConnection.getConnection();
             st = conn.createStatement();
             st.execute(QUERY_TABLE_CREATE);
         } catch (SQLException e) {
@@ -34,7 +53,6 @@ public class StudentRepository {
         } finally {
             try {
                 st.close();
-                conn.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -44,7 +62,6 @@ public class StudentRepository {
     public int addStudent(Student entity) {
         int result = 0;
         try {
-            conn = MyConnection.getConnection();
             pSt = conn.prepareStatement(QUERY_INSERT);
             pSt.setString(1, entity.getSurname());
             pSt.setInt(2, entity.getScore());
@@ -54,7 +71,6 @@ public class StudentRepository {
         } finally {
             try {
                 pSt.close();
-                conn.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -65,7 +81,6 @@ public class StudentRepository {
     public int update(Student entity) {
         int result = 0;
         try {
-            conn = MyConnection.getConnection();
             pSt = conn.prepareStatement(QUERY_UPDATE);
             pSt.setString(1, entity.getSurname());
             pSt.setInt(2, entity.getScore());
@@ -76,7 +91,6 @@ public class StudentRepository {
         } finally {
             try {
                 pSt.close();
-                conn.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -88,7 +102,6 @@ public class StudentRepository {
         int score = 0;
 
         try {
-            conn = MyConnection.getConnection();
             pSt = conn.prepareStatement(QUERY_SELECT_BY_SURNAME);
             pSt.setString(1, surname);
             final ResultSet arTable = pSt.executeQuery();
@@ -100,11 +113,18 @@ public class StudentRepository {
         } finally {
             try {
                 pSt.close();
-                conn.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
         return score;
+    }
+
+    public void closeConnection() {
+        try {
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
